@@ -41,4 +41,21 @@ public class ListTest {
 
         assertEquals("Denilson", list.get(0));
     }
+
+    @Test
+    void TestMockingList_WhenThrowsAnException (){
+        List<String> list = mock(List.class);
+        //anyInt() -> ArgumentMatcher.
+        String expectedMessage = "Foo Bar!";
+
+        when(list.get(anyInt()))
+                .thenThrow(new RuntimeException("Foo Bar!"));
+
+        var exception = assertThrows(
+                RuntimeException.class,
+                () -> list.get(0),
+                () -> "It should have throw an Runtime Exception");
+
+        assertEquals(expectedMessage, exception.getMessage());
+    }
 }
