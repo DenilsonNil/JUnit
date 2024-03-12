@@ -52,6 +52,4 @@ class CourseBusinessMockTest {
 
         assertEquals(4, filteredCourses.size());
     }
-
-
 }
