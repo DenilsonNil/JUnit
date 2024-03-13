@@ -2,14 +2,16 @@ package br.com.kualit.course;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 import static org.hamcrest.Matchers.*;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.*;
 
 class CourseBusinessWithBDDTest {
 
@@ -54,5 +56,70 @@ class CourseBusinessWithBDDTest {
         assertThat(filteredCourses.size(), is(4));
     }
 
+
+    @Test
+    void testDeleteCoursesNotRelatedToSpring() {
+        given(mockService.retrieveCourses("Valdivia"))
+                .willReturn(courses);
+
+        business.deleteCoursesNotRelatedToSpring("Valdivia");
+
+        //Verifying if the deleteCourse method is called
+        verify(mockService)
+                .deleteCourse("Agile Desmistificado com Scrum, XP, Kanban e Trello");
+
+        //once
+        verify(mockService, times(1))
+                .deleteCourse("Agile Desmistificado com Scrum, XP, Kanban e Trello");
+        //At least once
+        verify(mockService, atLeast(1))
+                .deleteCourse("Agile Desmistificado com Scrum, XP, Kanban e Trello");
+
+        verify(mockService, atLeastOnce())
+                .deleteCourse("Agile Desmistificado com Scrum, XP, Kanban e Trello");
+
+        //Never called
+        verify(mockService, never())
+                .deleteCourse("Microsserviços do 0 com Spring Cloud, Kotlin e Docker");
+
+    }
+
+    @Test
+    void testDeleteCoursesNotRelatedToSpringV2() {
+        //Using then and should to apply verify
+        given(mockService.retrieveCourses("Valdivia"))
+                .willReturn(courses);
+
+        String agileCourse = "Agile Desmistificado com Scrum, XP, Kanban e Trello";
+        String kotlinCourse = "Microsserviços do 0 com Spring Cloud, Kotlin e Docker";
+
+        business.deleteCoursesNotRelatedToSpring("Valdivia");
+
+        //Verifying if the deleteCourse method is called
+        then(mockService).should().deleteCourse(agileCourse);
+
+        then(mockService).should(never()).deleteCourse(kotlinCourse);
+    }
+
+    @Test
+    void testDeleteCoursesNotRelatedToSpringCapturingArguments() {
+        courses = Arrays.asList(
+                "Agile Desmistificado com Scrum, XP, Kanban e Trello",
+                "REST API's RESTFul do 0 à AWS com Spring Boot 3 Java e Docker"
+        );
+
+        //Using then and should to apply verify
+        given(mockService.retrieveCourses("Valdivia"))
+                .willReturn(courses);
+
+        ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
+
+        String agileCourse = "Agile Desmistificado com Scrum, XP, Kanban e Trello";
+
+        business.deleteCoursesNotRelatedToSpring("Valdivia");
+
+        then(mockService).should().deleteCourse(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue(), is(agileCourse));
+    }
 
 }
